@@ -31,23 +31,33 @@ class Invoice extends Model
     }
 
     public function filter(Request $request){
-        $queryFilter = (new InvoiceFilter)->filter($request);
+      /**
+       * A função cria uma instância da classe 'InvoiceFilter' e chama seu método 'filter' passando um objeto '$request'. O resultado desse filtro é armazenado na variável '$queryFilter'.
+       * Em seguida, é verificado se '$queryFilter' está vazio. Se estiver vazio, significa que nenhum filtro válido foi aplicado, então a função retorna uma coleção de recursos 'InvoiceResource' contendo todas as intâncias de 'Invoice' com a relação 'user' pré-carregada.
+       */
+      $queryFilter = (new InvoiceFilter)->filter($request);
+      if (empty($queryFilter)) {
+        return InvoiceResource::collection(Invoice::with('user')->get());
+      }
 
-        if (empty($queryFilter)) {
-          return InvoiceResource::collection(Invoice::with('user')->get());
+      /**
+       * A variável '$data' é criada para armazenar a consulta do model 'Invoice' com a relação 'user' pré-carregada.
+       * Em seguida, é verificado se '$queryFilter['whereIn']' não está vazio. Se não estiver vazio, significa que foram aplicados filtros 'whereIn'. o código itera sobre cada entrada em '$queryFilter['whereIn']' e aplica a cláusula '$data' usando os valores fornecidos.  
+       */
+      $data = Invoice::with('user');
+      if (!empty($queryFilter['whereIn'])) {
+        foreach ($queryFilter['whereIn'] as $value) {
+          $data->whereIn($value[0], $value[1]);
         }
+      }
 
-        $data = Invoice::with('user');
-
-        if (!empty($queryFilter['whereIn'])) {
-          foreach ($queryFilter['whereIn'] as $value) {
-            $data->whereIn($value[0], $value[1]);
-          }
-        }
-
-        $resource = $data->where($queryFilter['where'])->get();
-
-        return InvoiceResource::collection($resource);
-  }
+      /**
+       * A consulta continua sendo contruída. A cláusula 'where' é aplicada à consulta '$data' usando os valores em '$queryFilter['where']'.
+       * Em seguida, a função executa a consulta chamando 'get()' para obter os resultados finais da filtragem.
+       * Por fim, os resultados são retornados como uma coleção de recursos 'InvoiceResource' usando 'InvoiceResource::collection($resource)'.
+       */
+      $resource = $data->where($queryFilter['where'])->get();
+      return InvoiceResource::collection($resource);
+    }
 
 }
