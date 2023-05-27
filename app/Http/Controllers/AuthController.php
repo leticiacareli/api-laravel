@@ -10,25 +10,26 @@ use Illuminate\Support\Facades\Auth;
 
 // 5|pwkqkkRZX8zN4ZhzsWOAPbySD8QKDNZvXzGSa9Iv -> user
 
-//  6|v5fFwTTeoFkz4vPidXrTf3zRFc5orIvLui44VyWe -> teste
+// 6|v5fFwTTeoFkz4vPidXrTf3zRFc5orIvLui44VyWe -> teste
 
 class AuthController extends Controller
 {
     use HttpResponses;
 
     public function login(Request $request){
-        if(Auth::attempt($request->only('email', 'password'))){
+        if (Auth::attempt($request->only('email', 'password'))) {
             return $this->response('Authorized', 200, [
-                'token' => $request->user()->createToken('invoice', ['teste-index'])->plainTextToken,
+              'token' => $request->user()->createToken('invoice')->plainTextToken
             ]);
-        }
+          }
         else{
             return $this->response('Not Authorized', 403);
         }
         
     }
 
-    public function logout(){
-
+    public function logout(Request $request){
+        $request->user()->currentAccessToken()->delete();
+        return $this->response('Token Revoked', 200);
     }
 }

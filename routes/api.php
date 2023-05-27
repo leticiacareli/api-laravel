@@ -29,6 +29,7 @@ Route::prefix('v1')->group(function() {
     Route::middleware('auth:sanctum')->group(function(){
         Route::get('/users/{user}', [UserController::class, 'show'])->middleware('ability:user-get');
         Route::get('/teste', [TesteController::class, 'index'])->middleware('ability:teste-index');
+        Route::post('/logout', [AuthController::class, 'logout']);
     });
 
     //possui middleware no InvoiceController
