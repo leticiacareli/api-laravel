@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\v1\InvoiceController;
 use App\Http\Controllers\Api\v1\UserController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TesteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,7 +24,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function() {
     Route::get('/users', [UserController::class, 'index']);
-    Route::get('/users/{user}', [UserController::class, 'show']);
+    Route::post('/login', [AuthController::class, 'login']);
 
+    Route::middleware('auth:sanctum')->group(function(){
+        Route::get('/users/{user}', [UserController::class, 'show'])->middleware('ability:user-get');
+        Route::get('/teste', [TesteController::class, 'index'])->middleware('ability:teste-index');
+    });
+
+    //possui middleware no InvoiceController
     Route::apiResource('invoices', InvoiceController::class);
+    
+    
 });
